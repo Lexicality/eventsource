@@ -71,10 +71,16 @@ func (srv *Server) Close() {
 func (srv *Server) Handler(channel string) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		if srv.dead {
-			http.Error(w, "This event source is no longer available", http.StatusGone)
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(200)
+			w.Write([]byte("This event source is no longer available"))
+			// http.Error(w, "This event source is no longer available", http.StatusGone)
 			return
 		} else if srv.deadChannels[channel] {
-			w.WriteHeader(http.StatusNoContent)
+			w.Header().Set("Content-Type", "text/plain")
+			w.WriteHeader(200)
+			w.Write([]byte("This event source has been closed"))
+			// w.WriteHeader(http.StatusNoContent)
 			return
 		}
 		h := w.Header()
