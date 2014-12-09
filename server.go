@@ -1,6 +1,7 @@
 package eventsource
 
 import (
+	"bytes"
 	"log"
 	"net/http"
 )
@@ -99,6 +100,11 @@ func (srv *Server) Handler(channel string) http.HandlerFunc {
 		srv.subs <- sub
 		flusher := w.(http.Flusher)
 		notifier := w.(http.CloseNotifier)
+		w.WriteHeader(200)
+		// 2k of padding to convince IE we mean business.
+		w.Write([]byte(":padding"))
+		w.Write(bytes.Repeat([]byte("g"), 2039))
+
 		flusher.Flush()
 		enc := newEncoder(w)
 		for {
